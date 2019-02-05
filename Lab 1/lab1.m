@@ -40,23 +40,18 @@ meanE = mean(classE);
 
 
 % Plot the distributions' means
-% Plot distribution A & B 
+% Plot distribution A & B and STD contour
 figure;
-scatter(classA(:,1),classA(:,2));
-hold on;
-scatter(classB(:,1),classB(:,2));
+plotClasses(classA,'Class A',classB,'Class B');
 hold on; 
-plotStdEllipse(sigmaA,meanA,1);
+plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
 
-% Plot distribution C, D & E 
+% Plot distribution C, D & E and STD contour
 figure;
-scatter(classC(:,1),classC(:,2));
-hold on;
-scatter(classD(:,1),classD(:,2));
-hold on;
-scatter(classE(:,1),classE(:,2));
+plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
+hold on; 
+plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
 
-% TODO: What is a unit standard deviation contour? Ask during tutorial or
-% see when it comes up in lecture. 
+
 
 

@@ -41,17 +41,34 @@ meanE = mean(classE);
 
 % Plot the distributions' means
 % Plot distribution A & B and STD contour
-figure;
+clusters1 = figure;
 plotClasses(classA,'Class A',classB,'Class B');
 hold on; 
 plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
 
+
+
 % Plot distribution C, D & E and STD contour
-figure;
+clusters2 = figure;
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
 hold on; 
 plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
 
 
+%% MED Classifier
+% Step 1: Find distance between two points
 
+figure(clusters1)
+% g(x) = [a b c] in form aX_1 + bX_2 + c = 0
+gx = [(muA - muB)', .5*(muB'*muB - muA'*muA)];
+vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+refline(vec(1), vec(2))
 
+figure(clusters2)
+gx = [(muC - muE)', .5*(muE'*muE - muC'*muC)];
+vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+refline(vec(1), vec(2))
+
+gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
+vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+refline(vec(1), vec(2))

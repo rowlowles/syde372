@@ -57,18 +57,77 @@ plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
 
 %% MED Classifier
 % Step 1: Find distance between two points
+% 
+% figure(clusters1)
+% % g(x) = [a b c] in form aX_1 + bX_2 + c = 0
+% gx = [(muA - muB)', .5*(muB'*muB - muA'*muA)];
+% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+% refline(vec(1), vec(2))
+% 
+% figure(clusters2)
+% gx = [(muC - muE)', .5*(muE'*muE - muC'*muC)];
+% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+% refline(vec(1), vec(2))
+% 
+% gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
+% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+% refline(vec(1), vec(2))
+%% MED For Clusters 1
+minValue = floor(min(min(classA, classB)));
+maxValue = ceil(max(max(classA, classB)));
 
+feature1Vals = minValue(1):0.1:maxValue(1);
+feature2Vals = minValue(2):0.1:maxValue(2);
+
+arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
+boundary1 = [];
+
+for x1MED = 1:arrSize(1)
+    for y1MED = 1:arrSize(2)
+        pointCord = [feature1Vals(x1MED); feature2Vals(y1MED)];
+        distanceA = sum((muA-pointCord).^2).^0.5;
+        distanceB = sum((muB-pointCord).^2).^0.5;
+        
+        if abs(distanceA - distanceB) < .01
+            boundary1 = [boundary1, pointCord];
+        end
+    end
+end 
 figure(clusters1)
-% g(x) = [a b c] in form aX_1 + bX_2 + c = 0
-gx = [(muA - muB)', .5*(muB'*muB - muA'*muA)];
-vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-refline(vec(1), vec(2))
+plot(boundary1(1,:), boundary1(2,:))
 
+%% MED For Clusters 2
+compositeVec = [classC; classD; classE];
+maxValue = ceil(max(compositeVec));
+minValue = floor(min(compositeVec));
+
+feature1Vals = minValue(1):0.01:maxValue(1);
+feature2Vals = minValue(2):0.01:maxValue(2);
+
+arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
+boundary2EC = [];
+boundary2DC = [];
+boundary2ED = [];
+
+for x2MED = 1:arrSize(1)
+    for y2MED = 1:arrSize(2)
+        pointCord = [feature1Vals(x2MED); feature2Vals(y2MED)];
+        distanceC = sum((muC-pointCord).^2).^0.5;
+        distanceD = sum((muD-pointCord).^2).^0.5;
+        distanceE = sum((muE-pointCord).^2).^0.5;
+        
+        if (abs(distanceE - distanceC) < .001) && ((distanceD > distanceE) && (distanceD > distanceC))
+            boundary2EC = [boundary2EC, pointCord]; %#ok<AGROW>
+        end
+        if (abs(distanceD - distanceC) < .001) && ((distanceE > distanceD) && (distanceE > distanceC)) %#ok<*BDSCI>
+            boundary2DC = [boundary2DC, pointCord]; %#ok<AGROW>
+        end
+        if (abs(distanceE - distanceD) < .001) && ((distanceC > distanceE) && (distanceC > distanceD)) 
+           boundary2ED = [boundary2ED, pointCord]; %#ok<AGROW>
+        end
+    end
+end 
 figure(clusters2)
-gx = [(muC - muE)', .5*(muE'*muE - muC'*muC)];
-vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-refline(vec(1), vec(2))
-
-gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
-vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-refline(vec(1), vec(2))
+plot(boundary2ED(1,:),boundary2ED(2,:))
+plot(boundary2DC(1,:),boundary2DC(2,:))
+plot(boundary2EC(1,:),boundary2EC(2,:))

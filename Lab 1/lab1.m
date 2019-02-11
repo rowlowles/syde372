@@ -95,6 +95,11 @@ for x1MED = 1:arrSize(1)
 end 
 figure(clusters1)
 plot(boundary1(1,:), boundary1(2,:))
+polyX = [minValue(1) boundary1(1,length(boundary1)) boundary1(1,1) minValue(1)];
+polyY = [minValue(2) boundary1(2,length(boundary1)) boundary1(2,1) minValue(2)];
+
+aInPoly = inpolygon(classA(:,1), classA(:,2), polyX, polyY);
+aInBound = numel(classA(aInPoly));
 
 %% MED For Clusters 2
 compositeVec = [classC; classD; classE];

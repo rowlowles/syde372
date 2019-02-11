@@ -46,8 +46,6 @@ plotClasses(classA,'Class A',classB,'Class B');
 hold on; 
 plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
 
-
-
 % Plot distribution C, D & E and STD contour
 clusters2 = figure;
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
@@ -109,6 +107,10 @@ compositeVec = [classC; classD; classE];
 maxValue = ceil(max(compositeVec));
 minValue = floor(min(compositeVec));
 
+gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
+vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+refline(vec(1), vec(2))
+
 feature1Vals = minValue(1):0.01:maxValue(1);
 feature2Vals = minValue(2):0.01:maxValue(2);
 
@@ -139,3 +141,38 @@ figure(clusters2)
 plot(boundary2ED(1,:),boundary2ED(2,:))
 plot(boundary2DC(1,:),boundary2DC(2,:))
 plot(boundary2EC(1,:),boundary2EC(2,:))
+
+
+%% Nearest Neighbour
+[X_nn1, Y_nn1, classifier_nn1] = nearestNeighbourFilter(1,classA, 'Class A', classB, 'Class B');
+[X_nn2, Y_nn2, classifier_nn2] = nearestNeighbourFilter(1,classC,'Class C',classD,'Class D', classE,'Class E');
+
+% Create test data
+classA_test = repmat(muA',[nA, 1])  + randn(nA,2)*chol(sigmaA);
+classB_test = repmat(muB',[nB, 1]) + randn(nB,2)*chol(sigmaB);
+classC_test = repmat(muC',[nC, 1])  + randn(nC,2)*chol(sigmaC);
+classD_test = repmat(muD',[nD, 1]) + randn(nD,2)*chol(sigmaD);
+classE_test = repmat(muE',[nE, 1])  + randn(nE,2)*chol(sigmaE);
+
+% Calculate error
+nn1_classify = classifyPoints(X_nn1, Y_nn1, classifier_nn1, classA_test, 1, classB_test, 2);
+conf_nn1 = confusionmat(nn1_classify(:,1),nn1_classify(:,2));
+error_nn1 = size(find(nn1_classify(:,1) ~= nn1_classify(:,2)),1)/size(nn1_classify,1);
+
+nn2_classify = classifyPoints(X_nn2, Y_nn2, classifier_nn2, classC_test, 1, classD_test, 2, classE_test, 3);
+conf_nn2 = confusionmat(nn2_classify(:,1),nn2_classify(:,2));
+error_nn2 = size(find(nn2_classify(:,1) ~= nn2_classify(:,2)),1)/size(nn2_classify,1);
+
+
+%% 5 Nearest Neighbour
+[X_nn5_1, Y_nn5_1, classifier_nn5_1] = nearestNeighbourFilter(5,classA, 'Class A', classB, 'Class B');
+[X_nn5_2, Y_nn5_2, classifier_nn5_2] = nearestNeighbourFilter(5,classC,'Class C',classD,'Class D', classE,'Class E');
+
+% Calculate error
+nn5_1_classify = classifyPoints(X_nn5_1, Y_nn5_1, classifier_nn5_1, classA_test, 1, classB_test, 2);
+conf_nn5_1 = confusionmat(nn5_1_classify(:,1),nn5_1_classify(:,2));
+error_nn5_1 = size(find(nn5_1_classify(:,1) ~= nn5_1_classify(:,2)),1)/size(nn5_1_classify,1);
+
+nn5_2_classify = classifyPoints(X_nn5_2, Y_nn5_2, classifier_nn5_2, classC_test, 1, classD_test, 2, classE_test, 3);
+conf_nn5_2 = confusionmat(nn5_2_classify(:,1),nn5_2_classify(:,2));
+error_nn5_2 = size(find(nn5_2_classify(:,1) ~= nn5_2_classify(:,2)),1)/size(nn5_2_classify,1);

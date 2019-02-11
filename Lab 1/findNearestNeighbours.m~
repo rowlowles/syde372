@@ -1,0 +1,16 @@
+function [dist, index] = findNearestNeighbours(points,searchPoint,k)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+v = points-repmat(searchPoint,;
+dist = sqrt(sum(v.^2,2));
+
+% for rowNum = 1: size(points,1)
+%     v = points(rowNum,:)-searchPoint;
+%     dist(rowNum) = sqrt(v*v');
+% end
+
+[dist, index] = sort(dist);
+dist = dist(1:k);
+index = index(1:k);
+end
+

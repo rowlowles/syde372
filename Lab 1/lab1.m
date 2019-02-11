@@ -52,24 +52,6 @@ plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
 hold on; 
 plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
 
-
-%% MED Classifier
-% Step 1: Find distance between two points
-% 
-% figure(clusters1)
-% % g(x) = [a b c] in form aX_1 + bX_2 + c = 0
-% gx = [(muA - muB)', .5*(muB'*muB - muA'*muA)];
-% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-% refline(vec(1), vec(2))
-% 
-% figure(clusters2)
-% gx = [(muC - muE)', .5*(muE'*muE - muC'*muC)];
-% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-% refline(vec(1), vec(2))
-% 
-% gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
-% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-% refline(vec(1), vec(2))
 %% MED For Clusters 1
 minValue = floor(min(min(classA, classB)));
 maxValue = ceil(max(max(classA, classB)));
@@ -155,6 +137,9 @@ classD_test = repmat(muD',[nD, 1]) + randn(nD,2)*chol(sigmaD);
 classE_test = repmat(muE',[nE, 1])  + randn(nE,2)*chol(sigmaE);
 
 % Calculate error
+% nn1_classify is a 2d array, where column 1 is a list of points with val
+% equalling to which class they belong to in reality. Column 2 is the list
+% of points classified according to what 
 nn1_classify = classifyPoints(X_nn1, Y_nn1, classifier_nn1, classA_test, 1, classB_test, 2);
 conf_nn1 = confusionmat(nn1_classify(:,1),nn1_classify(:,2));
 error_nn1 = size(find(nn1_classify(:,1) ~= nn1_classify(:,2)),1)/size(nn1_classify,1);

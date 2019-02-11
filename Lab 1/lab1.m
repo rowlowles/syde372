@@ -100,6 +100,9 @@ polyY = [minValue(2) boundary1(2,length(boundary1)) boundary1(2,1) minValue(2)];
 
 aInPoly = inpolygon(classA(:,1), classA(:,2), polyX, polyY);
 aInBound = numel(classA(aInPoly));
+bInPoly = inpolygon(classB(:,1), classB(:,2), polyX, polyY);
+bInBound = nB - numel(classB(bInPoly));
+
 
 %% MED For Clusters 2
 compositeVec = [classC; classD; classE];

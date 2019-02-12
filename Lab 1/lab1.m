@@ -143,29 +143,14 @@ plot(boundary2EC(1,:),boundary2EC(2,:))
 [X_ged1, Y_ged1, classifier_ged1] = GEDFilter(classA, muA, sigmaA, 'Class A', classB, muB, sigmaB, 'Class B');
 [X_ged2, Y_ged2, classifier_ged2] = GEDFilter(classC, muC, sigmaC, 'Class C', classD, muD, sigmaD, 'Class D', classE, muE, sigmaE, 'Class E');
 
+% Calculate error
+ged1_classify = classifyPoints(X_ged1, Y_ged1, classifier_ged1, classA, 1, classB, 2);
+conf_ged1 = confusionmat(ged1_classify(:,1), ged1_classify(:,2));
+error_ged1 = size(find(ged1_classify(:,1) ~= ged1_classify(:,2)),1)/size(ged1_classify,1);
 
-% Initialize grid
-% minValue = floor(min(min(classA, classB)));
-% maxValue = ceil(max(max(classA, classB)));
-% 
-% feature1Vals = minValue(1):0.1:maxValue(1);
-% feature2Vals = minValue(2):0.1:maxValue(2);
-% 
-% arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
-% 
-% classADist = zeros(arrSize);
-% classBDist = zeros(arrSize);
-
-% for idx = 1:nA
-%     pt = classA(idx:(idx+1));
-%     distA = sqrt((pt-muA).'*inv(sigmaA)*(pt-muA));
-%     classADist(pt(1), pt(2)) = distA;
-% 
-%     distB = sqrt((pt-muB).'*inv(sigmaB)*(pt-muB));
-%     classBDist(pt(1), pt(2)) = distB;
-% end
-
-
+ged2_classify = classifyPoints(X_ged2, Y_ged2, classifier_ged2, classC, 1, classD, 2, classE, 3);
+conf_ged2 = confusionmat(ged2_classify(:,1), ged2_classify(:,2));
+error_ged2 = size(find(ged2_classify(:,1) ~= ged2_classify(:,2)),1)/size(ged2_classify,1);
 
 %% Nearest Neighbour
 [X_nn1, Y_nn1, classifier_nn1] = nearestNeighbourFilter(1,classA, 'Class A', classB, 'Class B');

@@ -72,17 +72,26 @@ for x1MED = 1:arrSize(1)
             boundary1 = [boundary1, pointCord];
         end
     end
-end 
+end
+
 figure(clusters1)
 plot(boundary1(1,:), boundary1(2,:))
 polyX = [minValue(1) boundary1(1,length(boundary1)) boundary1(1,1) minValue(1)];
 polyY = [minValue(2) boundary1(2,length(boundary1)) boundary1(2,1) minValue(2)];
 
-aInPoly = inpolygon(classA(:,1), classA(:,2), polyX, polyY);
-aInBound = numel(classA(aInPoly));
-bInPoly = inpolygon(classB(:,1), classB(:,2), polyX, polyY);
-bInBound = nB - numel(classB(bInPoly));
+oneMat = logical(ones(200,1));
 
+aInPoly = inpolygon(classA(:,1), classA(:,2), polyX, polyY);
+bInPoly = (oneMat - inpolygon(classB(:,1), classB(:,2), polyX, polyY));
+% aInBound = numel(classA(aInPoly));
+% bInBound = nB - numel(classB(bInPoly));
+
+bInPoly = bInPoly+1;
+
+attachedMat = [oneMat aInPoly; oneMat+1 bInPoly];
+confMatrixA = confusionmat(attachedMat(1,:), attachedMat(2,:));
+
+errorClass = size(find(attachedMat(:,1) ~= attachedMat(:,2)),1)/size(attachedMat,1);
 
 %% MED For Clusters 2
 compositeVec = [classC; classD; classE];
@@ -118,12 +127,26 @@ for x2MED = 1:arrSize(1)
            boundary2ED = [boundary2ED, pointCord]; %#ok<AGROW>
         end
     end
-end 
-figure(clusters2)
-plot(boundary2ED(1,:),boundary2ED(2,:))
-plot(boundary2DC(1,:),boundary2DC(2,:))
-plot(boundary2EC(1,:),boundary2EC(2,:))
+end
 
+figure(clusters2)
+plot(boundary2ED(1,:),boundary2ED(2,:)) % Bottom Right
+plot(boundary2DC(1,:),boundary2DC(2,:)) % Top line
+plot(boundary2EC(1,:),boundary2EC(2,:)) % Bottom left
+
+polyClassC = [boundary2DC(:,1) boundary2DC(:,end) [minValue(1); maxValue(2)] [minValue(1); minValue(2)] boundary2EC(:,1) boundary2EC(:,end)];
+cInPoly = inpolygon(classC(:,1), classC(:,2), polyClassC(1,:), polyClassC(2,:));
+
+polyClassD = [boundary2DC(:,1) boundary2DC(:,end) [maxValue(1); maxValue(2)] [maxValue(1); minValue(2)] boundary2ED(:,end) boundary2ED(:,1)];
+dInPoly = inpolygon(classD(:,1), classD(:,2), polyClassD(1,:), polyClassD(2,:));
+
+polyClassE = [boundary2ED(:,1) boundary2ED(:,end) [maxValue(1); minValue(2)] [minValue(1); maxValue(2)] boundary2EC(:,1) boundary2EC(:,end)];
+eInPoly = inpolygon(classE(:,1), classE(:,2), polyClassE(1,:), polyClassE(2,:));
+
+dInPoly = dInPoly*2;
+eInPoly = eInPoly*3;
+
+attachedMat2 = [logical(ones(100,1)) cInPoly; logical(ones(200,1))+1 dInPoly; logical(ones(150,1))+2 eInPoly];
 
 %% Nearest Neighbour
 [X_nn1, Y_nn1, classifier_nn1] = nearestNeighbourFilter(1,classA, 'Class A', classB, 'Class B');
@@ -139,7 +162,7 @@ classE_test = repmat(muE',[nE, 1])  + randn(nE,2)*chol(sigmaE);
 % Calculate error
 % nn1_classify is a 2d array, where column 1 is a list of points with val
 % equalling to which class they belong to in reality. Column 2 is the list
-% of points classified according to what 
+% of points classified according to what the algo thinks they are 
 nn1_classify = classifyPoints(X_nn1, Y_nn1, classifier_nn1, classA_test, 1, classB_test, 2);
 conf_nn1 = confusionmat(nn1_classify(:,1),nn1_classify(:,2));
 error_nn1 = size(find(nn1_classify(:,1) ~= nn1_classify(:,2)),1)/size(nn1_classify,1);

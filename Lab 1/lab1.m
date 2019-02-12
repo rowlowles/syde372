@@ -6,7 +6,7 @@ clear all;
 nA = 200;
 muA = [5;10];
 sigmaA = [8 0; 0 4];
-classA = repmat(muA',[nA, 1])  + randn(nA,2)*chol(sigmaA);
+classA = repmat(muA',[nA, 1]) + randn(nA,2)*chol(sigmaA);
 meanA = mean(classA);
 
 % Class B
@@ -139,6 +139,18 @@ plot(boundary2ED(1,:),boundary2ED(2,:))
 plot(boundary2DC(1,:),boundary2DC(2,:))
 plot(boundary2EC(1,:),boundary2EC(2,:))
 
+%% GED Classifier
+[X_ged1, Y_ged1, classifier_ged1] = GEDFilter(classA, muA, sigmaA, 'Class A', classB, muB, sigmaB, 'Class B');
+[X_ged2, Y_ged2, classifier_ged2] = GEDFilter(classC, muC, sigmaC, 'Class C', classD, muD, sigmaD, 'Class D', classE, muE, sigmaE, 'Class E');
+
+% Calculate error
+ged1_classify = classifyPoints(X_ged1, Y_ged1, classifier_ged1, classA, 1, classB, 2);
+conf_ged1 = confusionmat(ged1_classify(:,1), ged1_classify(:,2));
+error_ged1 = size(find(ged1_classify(:,1) ~= ged1_classify(:,2)),1)/size(ged1_classify,1);
+
+ged2_classify = classifyPoints(X_ged2, Y_ged2, classifier_ged2, classC, 1, classD, 2, classE, 3);
+conf_ged2 = confusionmat(ged2_classify(:,1), ged2_classify(:,2));
+error_ged2 = size(find(ged2_classify(:,1) ~= ged2_classify(:,2)),1)/size(ged2_classify,1);
 
 %% Nearest Neighbour
 [X_nn1, Y_nn1, classifier_nn1] = nearestNeighbourFilter(1,classA, 'Class A', classB, 'Class B');

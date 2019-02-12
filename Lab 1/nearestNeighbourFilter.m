@@ -42,12 +42,9 @@ for class = 1:numClasses
 end
 
 figure;
-
-imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)], classifier);
-colormap([0.945 0.835 0.847; 0.835 0.874 0.945; 0.839 0.945 0.835])
-hold on;
-set(gca, 'ydir', 'normal');
 plotClasses(varargin{:});
+hold on;
+contour(X,Y,classifier);
 
 end
 

@@ -104,26 +104,21 @@ confMatrixA = confusionmat(attachedMat(:,1), attachedMat(:,2))
 errorClass = size(find(attachedMat(:,1) ~= attachedMat(:,2)),1)/size(attachedMat,1)
 
 %% MED For Clusters 2
+% Compute median euclidean distance classifier for case 2
+
 compositeVec = [classC; classD; classE];
 maxValue = ceil(max(compositeVec));
 minValue = floor(min(compositeVec));
 
-% gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
-% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-% refline(vec(1), vec(2))
-
 feature1Vals = minValue(1):0.01:maxValue(1);
 feature2Vals = minValue(2):0.01:maxValue(2);
 
-arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
-classifierMat = zeros(arrSize);
-
+arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
 boundary2EC = [];
 boundary2DC = [];
 boundary2ED = [];
 
-
-[X_MED, Y_MED] = meshgrid(feature1Vals, feature2Vals);
+[X_MED_2, Y_MED_2] = meshgrid(feature1Vals, feature2Vals);
 classifier_MED_2 = zeros(arrSize);
 
 for x2MED = 1:arrSize(2)
@@ -132,16 +127,6 @@ for x2MED = 1:arrSize(2)
         distanceC = sum((muC-pointCord).^2).^0.5;
         distanceD = sum((muD-pointCord).^2).^0.5;
         distanceE = sum((muE-pointCord).^2).^0.5;
-        
-        if (distanceC < distanceE) && (distanceC < distanceD)
-            classifierMat(x2MED, y2MED) = 1;
-        end
-        if (distanceD < distanceE) && (distanceD < distanceC)
-            classifierMat(x2MED, y2MED) = 2;
-        end
-        if (distanceE < distanceC) && (distanceE < distanceD)
-            classifierMat(x2MED, y2MED) = 3;
-        end
         
         if (abs(distanceE - distanceC) < .001) && ((distanceD > distanceE) && (distanceD > distanceC))
             boundary2EC = [boundary2EC, pointCord]; %#ok<AGROW>
@@ -164,7 +149,7 @@ for x2MED = 1:arrSize(2)
     end
 end
 
-classifiedPoints = classifyPoints(X_MED, Y_MED, classifierMat, classC, 1, classD, 2, classE, 3);
+classifiedPoints = classifyPoints(X_MED_2, Y_MED_2, classifier_MED_2, classC, 1, classD, 2, classE, 3);
 conf_MED = confusionmat(classifiedPoints(:,1),classifiedPoints(:,2))
 error_MED = size(find(classifiedPoints(:,1) ~= classifiedPoints(:,2)),1)/size(classifiedPoints,1)
 

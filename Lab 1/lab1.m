@@ -6,7 +6,7 @@ clear all;
 nA = 200;
 muA = [5;10];
 sigmaA = [8 0; 0 4];
-classA = repmat(muA',[nA, 1])  + randn(nA,2)*chol(sigmaA);
+classA = repmat(muA',[nA, 1]) + randn(nA,2)*chol(sigmaA);
 meanA = mean(classA);
 
 % Class B
@@ -138,6 +138,33 @@ figure(clusters2)
 plot(boundary2ED(1,:),boundary2ED(2,:))
 plot(boundary2DC(1,:),boundary2DC(2,:))
 plot(boundary2EC(1,:),boundary2EC(2,:))
+
+%% GED Classifier
+[X_ged1, Y_ged1, classifier_ged1] = GEDFilter(classA, muA, sigmaA, 'Class A', classB, muB, sigmaB, 'Class B');
+[X_ged2, Y_ged2, classifier_ged2] = GEDFilter(classC, muC, sigmaC, 'Class C', classD, muD, sigmaD, 'Class D', classE, muE, sigmaE, 'Class E');
+
+
+% Initialize grid
+% minValue = floor(min(min(classA, classB)));
+% maxValue = ceil(max(max(classA, classB)));
+% 
+% feature1Vals = minValue(1):0.1:maxValue(1);
+% feature2Vals = minValue(2):0.1:maxValue(2);
+% 
+% arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
+% 
+% classADist = zeros(arrSize);
+% classBDist = zeros(arrSize);
+
+% for idx = 1:nA
+%     pt = classA(idx:(idx+1));
+%     distA = sqrt((pt-muA).'*inv(sigmaA)*(pt-muA));
+%     classADist(pt(1), pt(2)) = distA;
+% 
+%     distB = sqrt((pt-muB).'*inv(sigmaB)*(pt-muB));
+%     classBDist(pt(1), pt(2)) = distB;
+% end
+
 
 
 %% Nearest Neighbour

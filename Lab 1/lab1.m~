@@ -100,8 +100,8 @@ aInPoly(aInPoly == 0) = [2]
 bInPoly = bInPoly+1;
 
 attachedMat = [oneMat aInPoly; oneMat+1 bInPoly];
-confMatrixA = confusionmat(attachedMat(:,1), attachedMat(:,2));
-errorClass = size(find(attachedMat(:,1) ~= attachedMat(:,2)),1)/size(attachedMat,1);
+confMatrixA = confusionmat(attachedMat(:,1), attachedMat(:,2))
+errorClass = size(find(attachedMat(:,1) ~= attachedMat(:,2)),1)/size(attachedMat,1)
 
 %% MED For Clusters 2
 % Compute median euclidean distance classifier for case 2
@@ -114,7 +114,11 @@ feature1Vals = minValue(1):0.01:maxValue(1);
 feature2Vals = minValue(2):0.01:maxValue(2);
 
 arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
+<<<<<<< HEAD
+classifierMat = zeros(arrSize);
 
+=======
+>>>>>>> cd013dd63da32d4ca7693385b1ae90ad97e9f64c
 boundary2EC = [];
 boundary2DC = [];
 boundary2ED = [];
@@ -151,8 +155,8 @@ for x2MED = 1:arrSize(2)
 end
 
 classifiedPoints = classifyPoints(X_MED_2, Y_MED_2, classifier_MED_2, classC, 1, classD, 2, classE, 3);
-conf_MED = confusionmat(classifiedPoints(:,1),classifiedPoints(:,2));
-error_MED = size(find(classifiedPoints(:,1) ~= classifiedPoints(:,2)),1)/size(classifiedPoints,1);
+conf_MED = confusionmat(classifiedPoints(:,1),classifiedPoints(:,2))
+error_MED = size(find(classifiedPoints(:,1) ~= classifiedPoints(:,2)),1)/size(classifiedPoints,1)
 figure;
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
 hold on; 

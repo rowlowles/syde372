@@ -87,7 +87,7 @@ end
 figure;
 plotClasses(classA,'Class A',classB,'Class B');
 hold on;
-plot(boundary1(1,:), boundary1(2,:))
+plot(boundary1(1,:), boundary1(2,:));
 polyX = [minValue(1) boundary1(1,length(boundary1)) boundary1(1,1) minValue(1)];
 polyY = [minValue(2) boundary1(2,length(boundary1)) boundary1(2,1) minValue(2)];
 
@@ -96,7 +96,7 @@ oneMat = ones(200,1);
 aInPoly = double(inpolygon(classA(:,1), classA(:,2), polyX, polyY));
 bInPoly = (oneMat - inpolygon(classB(:,1), classB(:,2), polyX, polyY));
 
-aInPoly(aInPoly == 0) = [2]
+aInPoly(aInPoly == 0) = [2];
 bInPoly = bInPoly+1;
 
 attachedMat = [oneMat aInPoly; oneMat+1 bInPoly];

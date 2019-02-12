@@ -50,9 +50,6 @@ end
 
 % Plot the data
 figure
-
-contour(X,Y,classifier);
-hold on;
 classDataAndNameIdxs = zeros(1, numClasses*2);
 idx = 1;
 for classIdx = 1:numFieldsPerClass:size(varargin,2)
@@ -62,4 +59,7 @@ for classIdx = 1:numFieldsPerClass:size(varargin,2)
 end
 plotArgs=varargin(classDataAndNameIdxs);
 plotClasses(plotArgs{:});
+hold on;
+contour(X,Y,classifier, 'DisplayName', 'GED Boundary');
+
 end

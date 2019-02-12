@@ -6,7 +6,7 @@ clear all;
 nA = 200;
 muA = [5;10];
 sigmaA = [8 0; 0 4];
-classA = repmat(muA',[nA, 1])  + randn(nA,2)*chol(sigmaA);
+classA = repmat(muA',[nA, 1]) + randn(nA,2)*chol(sigmaA);
 meanA = mean(classA);
 
 % Class B
@@ -59,11 +59,15 @@ maxValue = ceil(max(max(classA, classB)));
 feature1Vals = minValue(1):0.1:maxValue(1);
 feature2Vals = minValue(2):0.1:maxValue(2);
 
-arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
+[X_MED_1, Y_MED_1] = meshgrid(feature1Vals, feature2Vals);
+
+arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
+
+classifier_MED_1 = zeros(arrSize);
 boundary1 = [];
 
-for x1MED = 1:arrSize(1)
-    for y1MED = 1:arrSize(2)
+for x1MED = 1:arrSize(2)
+    for y1MED = 1:arrSize(1)
         pointCord = [feature1Vals(x1MED); feature2Vals(y1MED)];
         distanceA = sum((muA-pointCord).^2).^0.5;
         distanceB = sum((muB-pointCord).^2).^0.5;
@@ -71,10 +75,18 @@ for x1MED = 1:arrSize(1)
         if abs(distanceA - distanceB) < .01
             boundary1 = [boundary1, pointCord];
         end
+        
+        if distanceA < distanceB
+            classifier_MED_1(y1MED,x1MED) = 1;
+        else
+            classifier_MED_1(y1MED,x1MED) = 2;
+        end
     end
 end
 
-figure(clusters1)
+figure;
+plotClasses(classA,'Class A',classB,'Class B');
+hold on;
 plot(boundary1(1,:), boundary1(2,:))
 polyX = [minValue(1) boundary1(1,length(boundary1)) boundary1(1,1) minValue(1)];
 polyY = [minValue(2) boundary1(2,length(boundary1)) boundary1(2,1) minValue(2)];
@@ -105,14 +117,17 @@ feature2Vals = minValue(2):0.01:maxValue(2);
 
 arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
 classifierMat = zeros(arrSize);
+
 boundary2EC = [];
 boundary2DC = [];
 boundary2ED = [];
 
-[X_MED, Y_MED] = meshgrid(feature1Vals, feature2Vals);
 
-for x2MED = 1:arrSize(1)
-    for y2MED = 1:arrSize(2)
+[X_MED, Y_MED] = meshgrid(feature1Vals, feature2Vals);
+classifier_MED_2 = zeros(arrSize);
+
+for x2MED = 1:arrSize(2)
+    for y2MED = 1:arrSize(1)
         pointCord = [feature1Vals(x2MED); feature2Vals(y2MED)];
         distanceC = sum((muC-pointCord).^2).^0.5;
         distanceD = sum((muD-pointCord).^2).^0.5;
@@ -137,6 +152,15 @@ for x2MED = 1:arrSize(1)
         if (abs(distanceE - distanceD) < .001) && ((distanceC > distanceE) && (distanceC > distanceD)) 
            boundary2ED = [boundary2ED, pointCord]; %#ok<AGROW>
         end
+        
+        if ((distanceC < distanceD) && (distanceC < distanceE))
+            classifier_MED_2(y2MED,x2MED) = 1;
+        elseif((distanceD < distanceE)) 
+             classifier_MED_2(y2MED,x2MED) = 2;   
+        else
+             classifier_MED_2(y2MED,x2MED) = 3;
+        end
+        
     end
 end
 
@@ -144,10 +168,169 @@ classifiedPoints = classifyPoints(X_MED, Y_MED, classifierMat, classC, 1, classD
 conf_MED = confusionmat(classifiedPoints(:,1),classifiedPoints(:,2))
 error_MED = size(find(classifiedPoints(:,1) ~= classifiedPoints(:,2)),1)/size(classifiedPoints,1)
 
-figure(clusters2)
+figure;
+plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
+hold on; 
 plot(boundary2ED(1,:),boundary2ED(2,:)) % Bottom Right
 plot(boundary2DC(1,:),boundary2DC(2,:)) % Top line
 plot(boundary2EC(1,:),boundary2EC(2,:)) % Bottom left
+
+%% GED Classifier
+[X_ged1, Y_ged1, classifier_ged1] = GEDFilter(classA, muA, sigmaA, 'Class A', classB, muB, sigmaB, 'Class B');
+[X_ged2, Y_ged2, classifier_ged2] = GEDFilter(classC, muC, sigmaC, 'Class C', classD, muD, sigmaD, 'Class D', classE, muE, sigmaE, 'Class E');
+
+% Calculate error
+ged1_classify = classifyPoints(X_ged1, Y_ged1, classifier_ged1, classA, 1, classB, 2);
+conf_ged1 = confusionmat(ged1_classify(:,1), ged1_classify(:,2));
+error_ged1 = size(find(ged1_classify(:,1) ~= ged1_classify(:,2)),1)/size(ged1_classify,1);
+
+ged2_classify = classifyPoints(X_ged2, Y_ged2, classifier_ged2, classC, 1, classD, 2, classE, 3);
+conf_ged2 = confusionmat(ged2_classify(:,1), ged2_classify(:,2));
+error_ged2 = size(find(ged2_classify(:,1) ~= ged2_classify(:,2)),1)/size(ged2_classify,1);
+
+%% MAP Classifier
+% Maximum A Posterioi (MAP), using the true statistics. Set the a
+% priori class probabilities proportional to the number of samples in
+% each class.
+
+% close all
+
+% Classes A & B
+
+% set-up grid in featurespace to be populated with classifications
+minValue = floor(min(min(classA, classB)));
+maxValue = ceil(max(max(classA, classB)));
+feature1Vals = minValue(1):0.1:maxValue(1);
+feature2Vals = minValue(2):0.1:maxValue(2);
+arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
+MAPClassificationAB = zeros(arrSize);
+
+
+% Set the a priori class probabilities proportional to the number of 
+% samples in each class.
+priorA = nA / (nA + nB);
+priorB = nB / (nA + nB);
+
+%initialize posteriors
+logPosteriorA = zeros(arrSize);
+logPosteriorB = zeros(arrSize);
+
+for i = 1:size(feature1Vals,2)
+    for j = 1:size(feature2Vals,2)
+        x = [feature1Vals(i), feature2Vals(j)];
+        logLikihoodA = -log(2*pi*sqrt(det(sigmaA))) -0.5 * (x - meanA) * inv(sigmaA) * (x - meanA)';
+        logLikihoodB = -log(2*pi*sqrt(det(sigmaB))) -0.5 * (x - meanB) * inv(sigmaB) * (x - meanB)';
+        logPosteriorA(j,i) = logLikihoodA + log(priorA);
+        logPosteriorB(j,i) = logLikihoodB + log(priorB);
+        
+        if(logPosteriorA(j,i) > logPosteriorB(j,i))
+            MAPClassificationAB(j,i) = 1; %class A            
+        elseif(logPosteriorA(j,i) < logPosteriorB(j,i))
+            MAPClassificationAB(j,i) = 2; %class B
+        else
+            MAPClassificationAB(j,i) = 0; %boundary!
+        end
+        
+    end
+end
+
+%plotting
+figure
+hold on;
+set(gca, 'ydir', 'normal');
+%axis equal;
+plotClasses(classA,'Class A',classB,'Class B');
+plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
+[X_MAP_1, Y_MAP_1] = meshgrid(feature1Vals, feature2Vals);
+contour(X_MAP_1,Y_MAP_1,MAPClassificationAB,'DisplayName','MAP boundary')
+
+% Classes C, D, E
+
+% set-up grid in featurespace to be populated with classifications
+compositeVec = [classA; classB; classC; classD; classE];
+maxValue = ceil(max(compositeVec));
+minValue = floor(min(compositeVec));
+feature1Vals = minValue(1):0.1:maxValue(1);
+feature2Vals = minValue(2):0.1:maxValue(2);
+arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
+MAPClassificationCDE = zeros(arrSize);
+
+% Set the a priori class probabilities proportional to the number of 
+% samples in each class.
+priorC = nC / (nC + nD + nE);
+priorD = nD / (nC + nD + nE);
+priorE = nE / (nC + nD + nE);
+
+%initialize posteriors
+logPosteriorC = zeros(arrSize);
+logPosteriorD = zeros(arrSize);
+logPosteriorE = zeros(arrSize);
+
+for i = 1:size(feature1Vals,2)
+    for j = 1:size(feature2Vals,2)
+        x = [feature1Vals(i), feature2Vals(j)];
+        
+        logLikihoodC = -log(2*pi*sqrt(det(sigmaC))) -0.5 * (x - meanC) * inv(sigmaC) * (x - meanC)';
+        logLikihoodD = -log(2*pi*sqrt(det(sigmaD))) -0.5 * (x - meanD) * inv(sigmaD) * (x - meanD)';
+        logLikihoodE = -log(2*pi*sqrt(det(sigmaE))) -0.5 * (x - meanE) * inv(sigmaE) * (x - meanE)';
+        
+        logPosteriorC(j,i) = logLikihoodC + log(priorC);
+        logPosteriorD(j,i) = logLikihoodD + log(priorD);
+        logPosteriorE(j,i) = logLikihoodE + log(priorE);
+        
+        if(logPosteriorC(j,i) > logPosteriorD(j,i) && logPosteriorC(j,i) > logPosteriorE(j,i))
+            MAPClassificationCDE(j,i) = 1; %class C
+        elseif(logPosteriorD(j,i) > logPosteriorC(j,i) && logPosteriorD(j,i) > logPosteriorE(j,i))
+            MAPClassificationCDE(j,i) = 2; %class D
+        elseif(logPosteriorE(j,i) > logPosteriorC(j,i) && logPosteriorE(j,i) > logPosteriorD(j,i))
+            MAPClassificationCDE(j,i) = 3; %class E
+        else
+            MAPClassificationCDE(j,i) = 0; %boundary!
+        end
+    end
+end
+
+%plotting
+figure
+hold on;
+set(gca, 'ydir', 'normal');
+plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
+plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
+[X_MAP_2, Y_MAP_2] = meshgrid(feature1Vals, feature2Vals);
+contour(X_MAP_2,Y_MAP_2,MAPClassificationCDE,'DisplayName','MAP boundary')
+
+% Calculate error
+MAP_1_classify = classifyPoints(X_MAP_1, Y_MAP_1, MAPClassificationAB, classA, 1, classB, 2);
+conf_MAP_1 = confusionmat(MAP_1_classify(:,1),MAP_1_classify(:,2));
+error_MAP_1 = size(find(MAP_1_classify(:,1) ~= MAP_1_classify(:,2)),1)/size(MAP_1_classify,1);
+
+MAP_2_classify = classifyPoints(X_MAP_2, Y_MAP_2, MAPClassificationCDE, classC, 1, classD, 2, classE, 3);
+conf_MAP_2 = confusionmat(MAP_2_classify(:,1),MAP_2_classify(:,2));
+error_MAP_2 = size(find(MAP_2_classify(:,1) ~= MAP_2_classify(:,2)),1)/size(MAP_2_classify,1);
+
+
+%% Plot them all together
+figure;
+plotClasses(classA,'Class A',classB,'Class B');
+hold on; 
+plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
+hold on;
+contour(X_MAP_1,Y_MAP_1,MAPClassificationAB,'DisplayName','MAP boundary');
+hold on;
+contour(X_ged1,Y_ged1,classifier_ged1,'DisplayName','GED boundary');
+hold on;
+contour(X_MED_1,Y_MED_1,classifier_MED_1,'DisplayName','MED boundary');
+
+figure;
+plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
+hold on; 
+plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
+hold on;
+contour(X_MAP_2,Y_MAP_2,MAPClassificationCDE,'DisplayName','MAP boundary');
+hold on;
+contour(X_ged2,Y_ged2,classifier_ged2,'DisplayName','GED boundary');
+hold on;
+contour(X_MED_2,Y_MED_2,classifier_MED_2,'DisplayName','MED boundary');
 
 
 %% Nearest Neighbour
@@ -172,7 +355,6 @@ error_nn1 = size(find(nn1_classify(:,1) ~= nn1_classify(:,2)),1)/size(nn1_classi
 nn2_classify = classifyPoints(X_nn2, Y_nn2, classifier_nn2, classC_test, 1, classD_test, 2, classE_test, 3);
 conf_nn2 = confusionmat(nn2_classify(:,1),nn2_classify(:,2));
 error_nn2 = size(find(nn2_classify(:,1) ~= nn2_classify(:,2)),1)/size(nn2_classify,1);
-
 
 %% 5 Nearest Neighbour
 [X_nn5_1, Y_nn5_1, classifier_nn5_1] = nearestNeighbourFilter(5,classA, 'Class A', classB, 'Class B');

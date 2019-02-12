@@ -6,7 +6,7 @@ clear all;
 nA = 200;
 muA = [5;10];
 sigmaA = [8 0; 0 4];
-classA = repmat(muA',[nA, 1]) + randn(nA,2)*chol(sigmaA);
+classA = repmat(muA',[nA, 1])  + randn(nA,2)*chol(sigmaA);
 meanA = mean(classA);
 
 % Class B
@@ -52,6 +52,24 @@ plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
 hold on; 
 plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
 
+
+%% MED Classifier
+% Step 1: Find distance between two points
+% 
+% figure(clusters1)
+% % g(x) = [a b c] in form aX_1 + bX_2 + c = 0
+% gx = [(muA - muB)', .5*(muB'*muB - muA'*muA)];
+% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+% refline(vec(1), vec(2))
+% 
+% figure(clusters2)
+% gx = [(muC - muE)', .5*(muE'*muE - muC'*muC)];
+% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+% refline(vec(1), vec(2))
+% 
+% gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
+% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+% refline(vec(1), vec(2))
 %% MED For Clusters 1
 minValue = floor(min(min(classA, classB)));
 maxValue = ceil(max(max(classA, classB)));
@@ -59,11 +77,7 @@ maxValue = ceil(max(max(classA, classB)));
 feature1Vals = minValue(1):0.1:maxValue(1);
 feature2Vals = minValue(2):0.1:maxValue(2);
 
-[X_MED_1, Y_MED_1] = meshgrid(feature1Vals, feature2Vals);
-
 arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
-
-classifier_MED_1 = zeros(arrSize);
 boundary1 = [];
 
 for x1MED = 1:arrSize(1)
@@ -74,12 +88,6 @@ for x1MED = 1:arrSize(1)
         
         if abs(distanceA - distanceB) < .01
             boundary1 = [boundary1, pointCord];
-        end
-        
-        if distanceA < distanceB
-            classifier_MED_1(y1MED,x1MED) = 1;
-        else
-            classifier_MED_1(y1MED,x1MED) = 2;
         end
     end
 end 
@@ -108,9 +116,6 @@ boundary2EC = [];
 boundary2DC = [];
 boundary2ED = [];
 
-[X_MED_2, Y_MED_2] = meshgrid(feature1Vals, feature2Vals);
-classifier_MED_2 = zeros(arrSize);
-
 for x2MED = 1:arrSize(1)
     for y2MED = 1:arrSize(2)
         pointCord = [feature1Vals(x2MED); feature2Vals(y2MED)];
@@ -127,15 +132,6 @@ for x2MED = 1:arrSize(1)
         if (abs(distanceE - distanceD) < .001) && ((distanceC > distanceE) && (distanceC > distanceD)) 
            boundary2ED = [boundary2ED, pointCord]; %#ok<AGROW>
         end
-        
-        if ((distanceC < distanceD) && (distanceC < distanceE))
-            classifier_MED_2(y2MED,x2MED) = 1;
-        elseif((distanceD < distanceE)) 
-             classifier_MED_2(y2MED,x2MED) = 2;   
-        else
-             classifier_MED_2(y2MED,x2MED) = 3;
-        end
-        
     end
 end 
 figure(clusters2)
@@ -143,20 +139,7 @@ plot(boundary2ED(1,:),boundary2ED(2,:))
 plot(boundary2DC(1,:),boundary2DC(2,:))
 plot(boundary2EC(1,:),boundary2EC(2,:))
 
-%% GED Classifier
-[X_ged1, Y_ged1, classifier_ged1] = GEDFilter(classA, muA, sigmaA, 'Class A', classB, muB, sigmaB, 'Class B');
-[X_ged2, Y_ged2, classifier_ged2] = GEDFilter(classC, muC, sigmaC, 'Class C', classD, muD, sigmaD, 'Class D', classE, muE, sigmaE, 'Class E');
-
-% Calculate error
-ged1_classify = classifyPoints(X_ged1, Y_ged1, classifier_ged1, classA, 1, classB, 2);
-conf_ged1 = confusionmat(ged1_classify(:,1), ged1_classify(:,2));
-error_ged1 = size(find(ged1_classify(:,1) ~= ged1_classify(:,2)),1)/size(ged1_classify,1);
-
-ged2_classify = classifyPoints(X_ged2, Y_ged2, classifier_ged2, classC, 1, classD, 2, classE, 3);
-conf_ged2 = confusionmat(ged2_classify(:,1), ged2_classify(:,2));
-error_ged2 = size(find(ged2_classify(:,1) ~= ged2_classify(:,2)),1)/size(ged2_classify,1);
-
-%% MAP Classifier
+%% 3 MAP Classifier
 % Maximum A Posterioi (MAP), using the true statistics. Set the a
 % priori class probabilities proportional to the number of samples in
 % each class.
@@ -202,8 +185,21 @@ for i = 1:size(feature1Vals,2)
     end
 end
 
+% figure
+% imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)],logPosteriorA);
+% set(gca, 'ydir', 'normal');
+% % axis equal;
+% title("Posterior A");
+% figure
+% imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)],logPosteriorB);
+% set(gca, 'ydir', 'normal');
+% %axis equal;
+% title("Posterior B");
+
 %plotting
 figure
+%imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)],classificationAB);
+%colormap([0.945 0.835 0.847; 0.835 0.874 0.945; 0.839 0.945 0.835]);
 hold on;
 set(gca, 'ydir', 'normal');
 %axis equal;
@@ -258,8 +254,23 @@ for i = 1:size(feature1Vals,2)
     end
 end
 
+% figure
+% imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)],logPosteriorC);
+% set(gca, 'ydir', 'normal');
+% title("Posterior C");
+% figure
+% imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)],logPosteriorD);
+% set(gca, 'ydir', 'normal');
+% title("Posterior D");
+% figure
+% imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)],logPosteriorE);
+% set(gca, 'ydir', 'normal');
+% title("Posterior E");
+
 %plotting
 figure
+%imagesc([minValue(1) maxValue(1)], [minValue(2) maxValue(2)],classificationCDE);
+%colormap([0.945 0.835 0.847; 0.835 0.874 0.945; 0.839 0.945 0.835]);
 hold on;
 set(gca, 'ydir', 'normal');
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
@@ -275,8 +286,6 @@ error_MAP_1 = size(find(MAP_1_classify(:,1) ~= MAP_1_classify(:,2)),1)/size(MAP_
 MAP_2_classify = classifyPoints(X_MAP_2, Y_MAP_2, MAPClassificationCDE, classC, 1, classD, 2, classE, 3);
 conf_MAP_2 = confusionmat(MAP_2_classify(:,1),MAP_2_classify(:,2));
 error_MAP_2 = size(find(MAP_2_classify(:,1) ~= MAP_2_classify(:,2)),1)/size(MAP_2_classify,1);
-
-
 
 %% Nearest Neighbour
 [X_nn1, Y_nn1, classifier_nn1] = nearestNeighbourFilter(1,classA, 'Class A', classB, 'Class B');
@@ -297,6 +306,7 @@ error_nn1 = size(find(nn1_classify(:,1) ~= nn1_classify(:,2)),1)/size(nn1_classi
 nn2_classify = classifyPoints(X_nn2, Y_nn2, classifier_nn2, classC_test, 1, classD_test, 2, classE_test, 3);
 conf_nn2 = confusionmat(nn2_classify(:,1),nn2_classify(:,2));
 error_nn2 = size(find(nn2_classify(:,1) ~= nn2_classify(:,2)),1)/size(nn2_classify,1);
+
 
 %% 5 Nearest Neighbour
 [X_nn5_1, Y_nn5_1, classifier_nn5_1] = nearestNeighbourFilter(5,classA, 'Class A', classB, 'Class B');

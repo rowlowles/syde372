@@ -61,13 +61,13 @@ feature2Vals = minValue(2):0.1:maxValue(2);
 
 [X_MED_1, Y_MED_1] = meshgrid(feature1Vals, feature2Vals);
 
-arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
+arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
 
 classifier_MED_1 = zeros(arrSize);
 boundary1 = [];
 
-for x1MED = 1:arrSize(2)
-    for y1MED = 1:arrSize(1)
+for x1MED = 1:arrSize(1)
+    for y1MED = 1:arrSize(2)
         pointCord = [feature1Vals(x1MED); feature2Vals(y1MED)];
         distanceA = sum((muA-pointCord).^2).^0.5;
         distanceB = sum((muB-pointCord).^2).^0.5;
@@ -83,10 +83,7 @@ for x1MED = 1:arrSize(2)
         end
     end
 end 
-
-figure;
-plotClasses(classA,'Class A',classB,'Class B');
-hold on;
+figure(clusters1)
 plot(boundary1(1,:), boundary1(2,:))
 polyX = [minValue(1) boundary1(1,length(boundary1)) boundary1(1,1) minValue(1)];
 polyY = [minValue(2) boundary1(2,length(boundary1)) boundary1(2,1) minValue(2)];
@@ -106,7 +103,7 @@ refline(vec(1), vec(2))
 feature1Vals = minValue(1):0.01:maxValue(1);
 feature2Vals = minValue(2):0.01:maxValue(2);
 
-arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
+arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
 boundary2EC = [];
 boundary2DC = [];
 boundary2ED = [];
@@ -114,8 +111,8 @@ boundary2ED = [];
 [X_MED_2, Y_MED_2] = meshgrid(feature1Vals, feature2Vals);
 classifier_MED_2 = zeros(arrSize);
 
-for x2MED = 1:arrSize(2)
-    for y2MED = 1:arrSize(1)
+for x2MED = 1:arrSize(1)
+    for y2MED = 1:arrSize(2)
         pointCord = [feature1Vals(x2MED); feature2Vals(y2MED)];
         distanceC = sum((muC-pointCord).^2).^0.5;
         distanceD = sum((muD-pointCord).^2).^0.5;
@@ -141,10 +138,7 @@ for x2MED = 1:arrSize(2)
         
     end
 end 
-
-figure;
-plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
-hold on; 
+figure(clusters2)
 plot(boundary2ED(1,:),boundary2ED(2,:))
 plot(boundary2DC(1,:),boundary2DC(2,:))
 plot(boundary2EC(1,:),boundary2EC(2,:))
@@ -282,29 +276,6 @@ MAP_2_classify = classifyPoints(X_MAP_2, Y_MAP_2, MAPClassificationCDE, classC, 
 conf_MAP_2 = confusionmat(MAP_2_classify(:,1),MAP_2_classify(:,2));
 error_MAP_2 = size(find(MAP_2_classify(:,1) ~= MAP_2_classify(:,2)),1)/size(MAP_2_classify,1);
 
-
-%% Plot them all together
-figure;
-plotClasses(classA,'Class A',classB,'Class B');
-hold on; 
-plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
-hold on;
-contour(X_MAP_1,Y_MAP_1,MAPClassificationAB,'DisplayName','MAP boundary');
-hold on;
-contour(X_ged1,Y_ged1,classifier_ged1,'DisplayName','GED boundary');
-hold on;
-contour(X_MED_1,Y_MED_1,classifier_MED_1,'DisplayName','MED boundary');
-
-figure;
-plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
-hold on; 
-plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
-hold on;
-contour(X_MAP_2,Y_MAP_2,MAPClassificationCDE,'DisplayName','MAP boundary');
-hold on;
-contour(X_ged2,Y_ged2,classifier_ged2,'DisplayName','GED boundary');
-hold on;
-contour(X_MED_2,Y_MED_2,classifier_MED_2,'DisplayName','MED boundary');
 
 
 %% Nearest Neighbour

@@ -44,13 +44,13 @@ meanE = mean(classE);
 clusters1 = figure;
 plotClasses(classA,'Class A',classB,'Class B');
 hold on; 
-plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
+plotStdContours([1], meanA, sigmaA, 'Class A Contour', meanB, sigmaB, 'Class B Contour');
 
 % Plot distribution C, D & E and STD contour
 clusters2 = figure;
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
 hold on; 
-plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
+plotStdContours([1], meanC, sigmaC, 'Class C Contour', meanD, sigmaD, 'Class D Contour', meanE, sigmaE, 'Class E Contour');
 
 %% MED For Clusters 1
 minValue = floor(min(min(classA, classB)));
@@ -115,7 +115,7 @@ minValue = floor(min(compositeVec));
 feature1Vals = minValue(1):0.01:maxValue(1);
 feature2Vals = minValue(2):0.01:maxValue(2);
 
-arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
+arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
 classifierMat = zeros(arrSize);
 
 boundary2EC = [];
@@ -123,7 +123,7 @@ boundary2DC = [];
 boundary2ED = [];
 
 
-[X_MED, Y_MED] = meshgrid(feature1Vals, feature2Vals);
+[X_MED_2, Y_MED_2] = meshgrid(feature1Vals, feature2Vals);
 classifier_MED_2 = zeros(arrSize);
 
 for x2MED = 1:arrSize(2)
@@ -132,16 +132,6 @@ for x2MED = 1:arrSize(2)
         distanceC = sum((muC-pointCord).^2).^0.5;
         distanceD = sum((muD-pointCord).^2).^0.5;
         distanceE = sum((muE-pointCord).^2).^0.5;
-        
-        if (distanceC < distanceE) && (distanceC < distanceD)
-            classifierMat(x2MED, y2MED) = 1;
-        end
-        if (distanceD < distanceE) && (distanceD < distanceC)
-            classifierMat(x2MED, y2MED) = 2;
-        end
-        if (distanceE < distanceC) && (distanceE < distanceD)
-            classifierMat(x2MED, y2MED) = 3;
-        end
         
         if (abs(distanceE - distanceC) < .001) && ((distanceD > distanceE) && (distanceD > distanceC))
             boundary2EC = [boundary2EC, pointCord]; %#ok<AGROW>
@@ -164,9 +154,9 @@ for x2MED = 1:arrSize(2)
     end
 end
 
-classifiedPoints = classifyPoints(X_MED, Y_MED, classifierMat, classC, 1, classD, 2, classE, 3);
-conf_MED = confusionmat(classifiedPoints(:,1),classifiedPoints(:,2))
-error_MED = size(find(classifiedPoints(:,1) ~= classifiedPoints(:,2)),1)/size(classifiedPoints,1)
+classifiedPoints = classifyPoints(X_MED_2, Y_MED_2, classifier_MED_2, classC, 1, classD, 2, classE, 3);
+conf_MED = confusionmat(classifiedPoints(:,1),classifiedPoints(:,2));
+error_MED = size(find(classifiedPoints(:,1) ~= classifiedPoints(:,2)),1)/size(classifiedPoints,1);
 
 figure;
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
@@ -240,7 +230,7 @@ hold on;
 set(gca, 'ydir', 'normal');
 %axis equal;
 plotClasses(classA,'Class A',classB,'Class B');
-plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
+plotStdContours([1], meanA, sigmaA, 'Class A Contour', meanB, sigmaB, 'Class B Contour');
 [X_MAP_1, Y_MAP_1] = meshgrid(feature1Vals, feature2Vals);
 contour(X_MAP_1,Y_MAP_1,MAPClassificationAB,'DisplayName','MAP boundary')
 
@@ -295,7 +285,7 @@ figure
 hold on;
 set(gca, 'ydir', 'normal');
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
-plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
+plotStdContours([1], meanC, sigmaC, 'Class C Contour', meanD, sigmaD, 'Class D Contour', meanE, sigmaE, 'Class E Contour');
 [X_MAP_2, Y_MAP_2] = meshgrid(feature1Vals, feature2Vals);
 contour(X_MAP_2,Y_MAP_2,MAPClassificationCDE,'DisplayName','MAP boundary')
 
@@ -313,7 +303,7 @@ error_MAP_2 = size(find(MAP_2_classify(:,1) ~= MAP_2_classify(:,2)),1)/size(MAP_
 figure;
 plotClasses(classA,'Class A',classB,'Class B');
 hold on; 
-plotStdContours([1], meanA, sigmaA, meanB, sigmaB);
+plotStdContours([1], meanA, sigmaA, 'Class A Contour', meanB, sigmaB, 'Class B Contour');
 hold on;
 contour(X_MAP_1,Y_MAP_1,MAPClassificationAB,'DisplayName','MAP boundary');
 hold on;
@@ -324,7 +314,7 @@ contour(X_MED_1,Y_MED_1,classifier_MED_1,'DisplayName','MED boundary');
 figure;
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
 hold on; 
-plotStdContours([1], meanC, sigmaC, meanD, sigmaD, meanE, sigmaE);
+plotStdContours([1], meanC, sigmaC, 'Class C Contour', meanD, sigmaD, 'Class D Contour', meanE, sigmaE, 'Class E Contour');
 hold on;
 contour(X_MAP_2,Y_MAP_2,MAPClassificationCDE,'DisplayName','MAP boundary');
 hold on;

@@ -82,7 +82,7 @@ for x1MED = 1:arrSize(2)
             classifier_MED_1(y1MED,x1MED) = 2;
         end
     end
-end 
+end
 
 figure;
 plotClasses(classA,'Class A',classB,'Class B');
@@ -91,27 +91,39 @@ plot(boundary1(1,:), boundary1(2,:))
 polyX = [minValue(1) boundary1(1,length(boundary1)) boundary1(1,1) minValue(1)];
 polyY = [minValue(2) boundary1(2,length(boundary1)) boundary1(2,1) minValue(2)];
 
-aInPoly = inpolygon(classA(:,1), classA(:,2), polyX, polyY);
-aInBound = numel(classA(aInPoly));
+oneMat = ones(200,1);
+
+aInPoly = double(inpolygon(classA(:,1), classA(:,2), polyX, polyY));
+bInPoly = (oneMat - inpolygon(classB(:,1), classB(:,2), polyX, polyY));
+
+aInPoly(aInPoly == 0) = [2]
+bInPoly = bInPoly+1;
+
+attachedMat = [oneMat aInPoly; oneMat+1 bInPoly];
+confMatrixA = confusionmat(attachedMat(:,1), attachedMat(:,2))
+errorClass = size(find(attachedMat(:,1) ~= attachedMat(:,2)),1)/size(attachedMat,1)
 
 %% MED For Clusters 2
 compositeVec = [classC; classD; classE];
 maxValue = ceil(max(compositeVec));
 minValue = floor(min(compositeVec));
 
-gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
-vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
-refline(vec(1), vec(2))
+% gx = [(muD - muE)', .5*(muE'*muE - muD'*muD)];
+% vec = [-gx(2)/gx(1) -gx(3)/gx(1)];
+% refline(vec(1), vec(2))
 
 feature1Vals = minValue(1):0.01:maxValue(1);
 feature2Vals = minValue(2):0.01:maxValue(2);
 
-arrSize = [size(feature2Vals,2) size(feature1Vals,2)];
+arrSize = [size(feature1Vals,2) size(feature2Vals,2)];
+classifierMat = zeros(arrSize);
+
 boundary2EC = [];
 boundary2DC = [];
 boundary2ED = [];
 
-[X_MED_2, Y_MED_2] = meshgrid(feature1Vals, feature2Vals);
+
+[X_MED, Y_MED] = meshgrid(feature1Vals, feature2Vals);
 classifier_MED_2 = zeros(arrSize);
 
 for x2MED = 1:arrSize(2)
@@ -120,6 +132,16 @@ for x2MED = 1:arrSize(2)
         distanceC = sum((muC-pointCord).^2).^0.5;
         distanceD = sum((muD-pointCord).^2).^0.5;
         distanceE = sum((muE-pointCord).^2).^0.5;
+        
+        if (distanceC < distanceE) && (distanceC < distanceD)
+            classifierMat(x2MED, y2MED) = 1;
+        end
+        if (distanceD < distanceE) && (distanceD < distanceC)
+            classifierMat(x2MED, y2MED) = 2;
+        end
+        if (distanceE < distanceC) && (distanceE < distanceD)
+            classifierMat(x2MED, y2MED) = 3;
+        end
         
         if (abs(distanceE - distanceC) < .001) && ((distanceD > distanceE) && (distanceD > distanceC))
             boundary2EC = [boundary2EC, pointCord]; %#ok<AGROW>
@@ -140,14 +162,18 @@ for x2MED = 1:arrSize(2)
         end
         
     end
-end 
+end
+
+classifiedPoints = classifyPoints(X_MED, Y_MED, classifierMat, classC, 1, classD, 2, classE, 3);
+conf_MED = confusionmat(classifiedPoints(:,1),classifiedPoints(:,2))
+error_MED = size(find(classifiedPoints(:,1) ~= classifiedPoints(:,2)),1)/size(classifiedPoints,1)
 
 figure;
 plotClasses(classC,'Class C',classD,'Class D', classE,'Class E');
 hold on; 
-plot(boundary2ED(1,:),boundary2ED(2,:))
-plot(boundary2DC(1,:),boundary2DC(2,:))
-plot(boundary2EC(1,:),boundary2EC(2,:))
+plot(boundary2ED(1,:),boundary2ED(2,:)) % Bottom Right
+plot(boundary2DC(1,:),boundary2DC(2,:)) % Top line
+plot(boundary2EC(1,:),boundary2EC(2,:)) % Bottom left
 
 %% GED Classifier
 [X_ged1, Y_ged1, classifier_ged1] = GEDFilter(classA, muA, sigmaA, 'Class A', classB, muB, sigmaB, 'Class B');
@@ -319,6 +345,9 @@ classD_test = repmat(muD',[nD, 1]) + randn(nD,2)*chol(sigmaD);
 classE_test = repmat(muE',[nE, 1])  + randn(nE,2)*chol(sigmaE);
 
 % Calculate error
+% nn1_classify is a 2d array, where column 1 is a list of points with val
+% equalling to which class they belong to in reality. Column 2 is the list
+% of points classified according to what the algo thinks they are 
 nn1_classify = classifyPoints(X_nn1, Y_nn1, classifier_nn1, classA_test, 1, classB_test, 2);
 conf_nn1 = confusionmat(nn1_classify(:,1),nn1_classify(:,2));
 error_nn1 = size(find(nn1_classify(:,1) ~= nn1_classify(:,2)),1)/size(nn1_classify,1);

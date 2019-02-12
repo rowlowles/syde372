@@ -8,7 +8,7 @@ function [elements] = classifyPoints(X,Y, classifier, varargin)
        originalPoints = varargin{(i-1)*2+1};
        for index = 1:size(originalPoints, 1)
           point = originalPoints(index,:);
-          point
+          point;
           classification = findClassification(X,Y,classifier,point(1,1), point(1,2));
           elements = [elements; i classification];
        end

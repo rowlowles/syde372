@@ -13,3 +13,7 @@ ModelEstimation1D(b,b_distribution, "B", 0:0.01:10);
 %%
 % Parametric Estimation - 2D
 parametricEstimation2D(al,bl,cl);
+
+%%
+load('lab2_3');
+sequentialDiscriminants(a,b);

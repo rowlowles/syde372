@@ -21,8 +21,9 @@ parzenEstimator(a,a_distribution,.4)
 parametricEstimation2D(al,bl,cl);
 
 %% Parzen Method - 2D
-
-
+gaussFilter = fspecial('gaussian', 400, 400);
+res = [1 0 0 500 500];
+[p,x,y] = parzen(al,res, gaussFilter);
 %%
 load('lab2_3');
 sequentialDiscriminants(a,b);

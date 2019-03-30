@@ -1,10 +1,10 @@
-function parzenEstimator( input_data, sigma)
+function parzenEstimator( input_data, dist, sigma)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
 dims = size(input_data);
 length = dims(2);
-pdf = zeros(1,length);
+pdf = zeros(2,length);
 h = 1/sqrt(length);
 for j = 0.1:.1:10
     foo = int8(j*10);
@@ -18,17 +18,23 @@ for j = 0.1:.1:10
         pointSum = pointSum + gaussKernel;
     end
     % j is x step, pointSum/length is y value
-    pdf(foo) = pointSum/length;
+    pdf(1, foo) = j;
+    pdf(2, foo) = pointSum/length;
 end
 % plot(pdf)
 % x = pdf;
+plotDist = dist(.1:.1:10);
+
 figure;
 hold on;
-titleString = sprintf('Parzen Estimation of Dataset A with Sigma = %.1d', sigma);
+titleString = sprintf('Parzen Estimation of Dataset A with Sigma = %.1f', sigma);
 title(titleString)
-plot(input_data)
-plot(pdf)
+plot(.1:.1:10,plotDist)
+plot(pdf(1,:), pdf(2,:))
 legend('Actual','Parzen')
+xlim([0 10])
+xlabel('Value')
+ylabel('Probability')
 
 end
 

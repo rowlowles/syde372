@@ -36,7 +36,7 @@ if length(win)==1, win = ones(1,win); end;
 if min(size(win))==1, win = win(:) * win(:)'; end;
 win = win / (res*res*sum(sum(win)));
 
-%p = zeros(2+(dh(2)-dl(2))/res,2+(dh(1)-dl(1))/res);
+p = zeros(2+(dh(2)-dl(2))/res,2+(dh(1)-dl(1))/res);
 fdl1 = find(data(:,1)>dl(1));
 fdh1 = find(data(fdl1,1)<dh(1));
 fdl2 = find(data(fdl1(fdh1),2)>dl(2));
@@ -45,12 +45,12 @@ fdh2 = find(data(fdl1(fdh1(fdl2)),2)<dh(2));
 for i=fdl1(fdh1(fdl2(fdh2)))',
   j1 = round(1+(data(i,1)-dl(1))/res);
   j2 = round(1+(data(i,2)-dl(2))/res);
-  %p(j2,j1) = p(j2,j1) + data(i,3);
+  p(j2,j1) = p(j2,j1) + data(i,3);
 end;
 
-p = 0; %conv2(p,win,'same')/numpts;
-x = [dl(1):res:(dh(1)+res)]; % x = x(1:size(p,2));
-y = [dl(2):res:(dh(2)+res)]; % y = y(1:size(p,1));
+p = conv2(p,win,'same')/numpts;
+x = [dl(1):res:(dh(1)+res)]; x = x(1:size(p,2));
+y = [dl(2):res:(dh(2)+res)]; y = y(1:size(p,1));
 
 
 end

@@ -1,4 +1,4 @@
-function [ans_sigma, ans_mu] = parametricEstimator1D(input_data)
+function [ans_sigma, ans_mu, ans_lambda] = parametricEstimator1D(input_data)
     syms mu sigma_x lambda a b x
     gauss = @(sigma_x, mu, x) (1/(2*pi*sigma_x)^(1/2)) * exp(-0.5*(x-mu)^2/(sigma_x));
     exponential = @(lambda, x) lambda*exp(-lambda*x);
@@ -19,8 +19,8 @@ function [ans_sigma, ans_mu] = parametricEstimator1D(input_data)
     ans_mu = double(solve(dGauss_dMu, mu));
     ans_sigma = double(solve(subs(dGauss_dSigma,mu, ans_mu), sigma_x));
      
-%     dExp_dLambda = diff(log_likelihood_exponential, lambda);
-%     ans_lambda = double(solve(dExp_dLambda, lambda));
+    dExp_dLambda = diff(log_likelihood_exponential, lambda);
+    ans_lambda = double(solve(dExp_dLambda, lambda));
 %     likelihood_uniform = log(likelihood_uniform);
 %     d_likelihood_uniform_d_a = diff(likelihood_uniform, a);
 %     d_likelihood_uniform_d_b = diff(likelihood_uniform, b);

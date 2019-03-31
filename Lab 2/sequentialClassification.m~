@@ -23,37 +23,34 @@ function [] = sequentialClassification(a,b)
     % (c) maximum error rate
     % (d) standard deviation of the error rates
     % Produce a plot showing these results as a function of J.
-    max_j = 5;
-    iterations = 20;
-    j_limit_range = 1:max_j;
-    error_rate = zeros(max_j,iterations);
-    average_error_rate = zeros(max_j,1);
-    min_error_rate = zeros(max_j,1);
-    max_error_rate = zeros(max_j,1);
-    std_error_rate = zeros(max_j,1);
+    j_limit_range = 1:5;
+    error_rate = zeros(5,40);
+    average_error_rate = zeros(5,1);
+    min_error_rate = zeros(5,1);
+    max_error_rate = zeros(5,1);
+    std_error_rate = zeros(5,1);
     
     for j_limit = j_limit_range
         fprintf('J-Limit = %d\n', j_limit);
         tic
         
-        for i = 1:iterations
+%         limitFig = figure;
+%         plotClasses(a,'Class A',b,'Class B');
+%         title(sprintf('Sequential Classifier with J = %d',j_limit));
+%         hold on;
+        
+        for i = 1:40
             [sequentialDiscriminantClassifier, X, Y] = sequentialDiscriminantGenerator(a,b,j_limit);
             Sequential_classify = classifyPoints(X, Y, sequentialDiscriminantClassifier, a, 1, b, 2);
             conf_Sequential = confusionmat(Sequential_classify(:,1), Sequential_classify(:,2));
             error_rate(j_limit,i)=(conf_Sequential(1,2) + conf_Sequential(2,1))/(length([a;b]));
             
-            if (error_rate(j_limit,i) > 0.25 && j_limit > 2)
-                limitFig = figure;
-                plotClasses(a,'Class A',b,'Class B');
-                title(sprintf('Sequential Classifier with J = %d',j_limit));
-                hold on;
-                contour(X,Y,sequentialDiscriminantClassifier, 'DisplayName', sprintf('SD Boundary %d',i));
-                hold on;
-                saveas(limitFig,"SequentialClassifierJ_" + j_limit + "_" + i,'png')
-            end
+%             contour(X,Y,sequentialDiscriminantClassifier, 'DisplayName', sprintf('SD Boundary %d',i));
+%             hold on;
         end
         toc
         
+%         saveas(limitFig,"SequentialClassifierJ_" + j_limit,'png')
         average_error_rate(j_limit) = mean(error_rate(j_limit,:));
         min_error_rate(j_limit) = min(error_rate(j_limit,:));
         max_error_rate(j_limit) = max(error_rate(j_limit,:));
@@ -68,8 +65,5 @@ function [] = sequentialClassification(a,b)
     plot(j_limit_range, max_error_rate,'DisplayName','Max error rate')
     plot(j_limit_range, std_error_rate,'DisplayName','Std dev error rate')
     legend;
-    title("Error Rate of Sequential Classifier versus Number of Sequential Classifiers")
-    xlabel("Number of Sequential Classifiers");
-    ylabel("Error rate");
     saveas(error_fig,"SequentialClassifierError",'png')
 end

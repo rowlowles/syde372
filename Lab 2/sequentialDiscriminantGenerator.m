@@ -34,13 +34,7 @@ function [Master_Master_classify, X, Y] = sequentialDiscriminantGenerator(classA
         
         j = j + 1;
     end
-    
-%     Master_Master_classify = zeros(size(Master_classify(:,:,1)));
-%     for i = 1:length(X)
-%         for j = 1:length(Y)
-%             Master_Master_classify(j,i) = sequentialDiscriminantApplier(Master_classify, Master_n_a_B, Master_n_b_A, X, Y, [X(i),Y(j)]);
-%         end
-%     end
+    j
     Master_Master_classify = zeros(size(Master_classify(:,:,1)));
     for i = 1:size(Master_classify,3)
         if(Master_n_a_B(i) == 0)

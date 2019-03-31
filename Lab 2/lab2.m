@@ -30,4 +30,4 @@ res = [.4 0 0 500 500];
 parzen2d(pa,pb,pc,al,bl,cl)
 %% Sequential Discriminant
 load('lab2_3');
-sequentialDiscriminants(a,b);
+sequentialClassification(a,b);

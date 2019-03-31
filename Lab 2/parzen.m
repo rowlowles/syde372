@@ -28,9 +28,9 @@ dh = max(data(:,1:2));
 if length(res)>1, dl = [res(2) res(3)]; dh = [res(4) res(5)]; res = res(1); end;
 
 if (nargin == 2), win = 10; end;
-if (max(dh-dl)/res>1000), 
-  error('Excessive data range relative to resolution.');
-end;
+%if (max(dh-dl)/res>1000), 
+%  error('Excessive data range relative to resolution.');
+%end;
 
 if length(win)==1, win = ones(1,win); end;
 if min(size(win))==1, win = win(:) * win(:)'; end;

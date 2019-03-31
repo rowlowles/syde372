@@ -21,8 +21,8 @@ parzenEstimator(a,a_distribution,.4)
 parametricEstimation2D(al,bl,cl);
 
 %% Parzen Method - 2D
-gaussFilter = fspecial('gaussian', 400, 400);
-res = [.4 0 0 500 500];
+gaussFilter = fspecial('gaussian', 100, sqrt(400));
+res = [1 0 0 500 500];
 
 [pa,x,y] = parzen(al, res, gaussFilter);
 [pb,x,y] = parzen(bl, res, gaussFilter);

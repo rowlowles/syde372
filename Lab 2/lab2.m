@@ -28,6 +28,6 @@ res = [.4 0 0 500 500];
 [pb,x,y] = parzen(bl, res, gaussFilter);
 [pc,x,y] = parzen(cl, res, gaussFilter);
 parzen2d(pa,pb,pc,al,bl,cl)
-%%
+%% Sequential Discriminant
 load('lab2_3');
 sequentialDiscriminants(a,b);

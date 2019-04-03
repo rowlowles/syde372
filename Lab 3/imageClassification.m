@@ -1,18 +1,18 @@
-function imageClassification(data, testData, name, chartTitle)
+function [classifier, X, Y] = imageClassification(data, testData, name, chartTitle)
 
 image_data = extractModels(data);
 test_data = extractModels(testData);
 [X,Y, classifier] = GEDFilter(image_data);
 
-data = cell(20);
+data_cell = cell(20);
 for i = 1:10
-   data{(i-1)*2+1} = test_data{(i-1)*4+1};
-   data{(i-1)*2+2} = i;
+   data_cell{(i-1)*2+1} = test_data{(i-1)*4+1};
+   data_cell{(i-1)*2+2} = i;
 end
 
-classifier = classifyPoints(X, Y, classifier, data);
+classification = classifyPoints(X, Y, classifier, data_cell);
 
-conf_classifier = confusionmat(classifier(:,1), classifier(:,2));
+conf_classifier = confusionmat(classification(:,1), classification(:,2));
 
 conf_figure = figure;
 confusionchart(conf_classifier);

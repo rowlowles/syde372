@@ -1,34 +1,69 @@
 close all;
 
 load feat.mat
-featureSpace = figure;
+% featureSpace = figure;
 
-subplot(1,3,1);
+% subplot(1,3,1);
+figure
 title("Feature Space for 2x2 image blocks");
 xlabel("Feature 1");
 ylabel("Feature 2");
 aplot(f2);
 
-subplot(1,3,2);
+% subplot(1,3,2);
+figure
 title("Feature Space for 8x8 image blocks");
 xlabel("Feature 1");
 ylabel("Feature 2");
 aplot(f8);
 
-subplot(1,3,3);
+% subplot(1,3,3);
+figure
 title("Feature Space for 32x32 image blocks");
 xlabel("Feature 1");
 ylabel("Feature 2");
 aplot(f32);
 
 %% Create classifiers
-f2_data = extractModels(f2);
-[X_f2,Y_f2, classifier_f2] = GEDFilter(f2_data);
-f2_classifier = classifyPoints(X, Y, sequentialDiscriminantClassifier, a, 1, b, 2);
+[classifier_f2, X_f2, Y_f2] = imageClassification(f2,f2t,"f2","Image Classification Using 2x2 Image Blocks");
+[classifier_f8, X_f8, Y_f8] = imageClassification(f8,f8t,"f8","Image Classification Using 8x8 Image Blocks");
+[classifier_f32, X_f32, Y_f32] = imageClassification(f32,f32t,"f32","Image Classification Using 32x32 Image Blocks");
 
-arguments = cell(10)
-for i = 1:10
-    
+%%  Image Classification and Segmentation
+cimage = zeros(256,256);
+
+for i = 1:256
+    for j = 1:256
+        cimage(i,j) = findClassification(X_f8,Y_f8,classifier_f8,...
+            multf8(i,j,1), multf8(i,j,2));
+    end
 end
 
-conf_f2_classifier = confusionmat(f2_classifier(:,1), f2_classifier(:,2), );
+im_cl_sg_fig = figure;
+subplot(1,2,1);
+imagesc(cimage);
+title("Classification of Composite Image of Multiple Textures");
+xlabel("Horizontal Pixel");
+ylabel("Vertical Pixel");
+colorbar();
+
+subplot(1,2,2);
+imshow(multim, []);
+title("Composite Image of Multiple Textures");
+xlabel("Horizontal Pixel");
+ylabel("Vertical Pixel");
+axis on;
+
+saveas(im_cl_sg_fig, "comp_img.png");
+
+% Abstract class image
+abstract_art = figure;
+imagesc(flip(classifier_f8,1));
+title("Classifier for 8x8 Blocks of Texture Images");
+xlabel("Feature 1");
+ylabel("Feature 2");
+xlim([0.0035, 0.2042])
+0.0062, 0.2036]; 
+colorbar();
+
+saveas(abstract_art, "abstract_art.png");

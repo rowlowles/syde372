@@ -21,7 +21,7 @@ end
 minValue = min(mins);
 maxValue = max(maxs);
 
-iteration_amount = (maxValue-minValue)/750;
+iteration_amount = (maxValue-minValue)/100;
 minValue = minValue - 2*iteration_amount;
 maxValue = maxValue + 2*iteration_amount;
 

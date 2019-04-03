@@ -19,7 +19,7 @@ end;
 if (nargin > 1), 
   c = setstr(y(1));
 else,
-  c = 'A';
+  c = '1';
 end;
 
 f = min(x(3,:));

@@ -1,0 +1,34 @@
+close all;
+
+load feat.mat
+featureSpace = figure;
+
+subplot(1,3,1);
+title("Feature Space for 2x2 image blocks");
+xlabel("Feature 1");
+ylabel("Feature 2");
+aplot(f2);
+
+subplot(1,3,2);
+title("Feature Space for 8x8 image blocks");
+xlabel("Feature 1");
+ylabel("Feature 2");
+aplot(f8);
+
+subplot(1,3,3);
+title("Feature Space for 32x32 image blocks");
+xlabel("Feature 1");
+ylabel("Feature 2");
+aplot(f32);
+
+%% Create classifiers
+f2_data = extractModels(f2);
+[X_f2,Y_f2, classifier_f2] = GEDFilter(f2_data);
+f2_classifier = classifyPoints(X, Y, sequentialDiscriminantClassifier, a, 1, b, 2);
+
+arguments = cell(10)
+for i = 1:10
+    
+end
+
+conf_f2_classifier = confusionmat(f2_classifier(:,1), f2_classifier(:,2), );

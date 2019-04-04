@@ -57,8 +57,17 @@ axis on;
 saveas(im_cl_sg_fig, "comp_img.png");
 
 % Abstract class image
-xtick = num2str(linspace(0.0035, 0.2042, 6)');
-ytick = num2str(linspace(0.0062, 0.2036, 6)');
+numOfTicks = 9;
+xtick_num = linspace(0.0035, 0.2042, numOfTicks);
+ytick_num = linspace(0.0062, 0.2036, numOfTicks);
+
+xtick = cell(numOfTicks-2, 1);
+ytick = cell(numOfTicks-2, 1);
+
+for i = 2:(numOfTicks-1) 
+    xtick{i-1} = xtick_num(i);
+    ytick{i-1} = ytick_num(i);
+end
 
 abstract_art = figure;
 imagesc(classifier_f8);
@@ -67,8 +76,11 @@ ax.YDir = 'normal';
 title("Classifier for 8x8 Blocks of Texture Images");
 xlabel("Feature 1");
 ylabel("Feature 2");
-% xticklabels(xtick);
-% yticklabels(ytick);
+xticklabels(xtick);
+yticklabels(ytick);
 colorbar();
 
 saveas(abstract_art, "abstract_art.png");
+
+%% K Means
+kmeans(10,f32(1:2,:)');

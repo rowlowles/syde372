@@ -25,15 +25,24 @@ function [classifier] = kmeans(K, data)
         iter = iter + 1;
     end
     
-    figure;
+    kmean_fig = figure('units','normalized','outerposition',[0 0 0.75 0.75]);
+    legend_data = cell(K*2,1);
     for classIdx = 1:K
+        randcolor = [rand rand rand];
         current_data = data(classifier == classIdx,:);
-        scatter(current_data(:,1),current_data(:,2),50,'filled');
+        scatter(current_data(:,1),current_data(:,2),65,randcolor,'filled');
         hold on; 
+        scatter(prototypes(classIdx,1),prototypes(classIdx,2),200,...
+            randcolor,'*');
+        hold on; 
+        legend_data{classIdx*2-1} = sprintf('Class %d',classIdx);
+        legend_data{classIdx*2} = sprintf('Mean for class %d',classIdx);
     end
     
     xlabel('Feature 1');
     ylabel('Feature 2');
-    legend();
+    title('K-Means Classification for 32x32 Image Data');
+    legend(legend_data, 'Location', 'northwest');
+    saveas(kmean_fig,"Kmean_plot.png");
 end
 
